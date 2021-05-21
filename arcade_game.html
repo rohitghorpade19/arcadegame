@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <canvas id="gcanvas" width="800" height="600"></canvas>
+  </body>
+  <script>
+    var canvas;
+    var canvascontext;
+    var ballx=50;
+    var ballspeedx=10;
+    var bally=50;
+    var ballspeedy=4;
+    var paddle1y=250;
+    var paddle2y=250;
+    var t=10;
+    var score1=0;
+    var score2=0;
+    const target=5;
+    var victory=false;
+    const paddle_h=100;
+     window.onload =function(){
+       console.log('hello');
+       canvas=document.getElementById("gcanvas");
+       canvascontext=canvas.getContext('2d');
+       var fps=30;
+      setInterval(function() {
+            movee();
+            drawe();
+          },1000/fps)
+    canvas.addEventListener('mousedown',function(evt){
+      victory=false;
+      movee();
+    });
+      canvas.addEventListener('mousemove',
+    function(evt){
+      a=mp(evt);
+      paddle1y=a.y-(paddle_h/2);
+    })
+    function ai(){
+      if(paddle2y+paddle_h/2 > bally-35){
+        paddle2y-=6;
+      }
+      else if(paddle2y+paddle_h/2 < bally+35){
+        paddle2y+=6;
+      }
+    }
+    function mp(evt){
+      var rect=canvas.getBoundingClientRect();
+      var root=document.documentElement;
+      var mouseX=evt.clientX - rect.left - root.scrollLeft;
+      var mouseY=evt.clientY - root.scrollTop;
+      return{
+        x:mouseX,
+        y:mouseY
+      }
+    }
+    function movee(){
+      if(victory){
+
+        return;
+      }
+
+      ai();
+        ballx = (ballx+ballspeedx);
+        if (ballx < 0+t){
+          if(bally>paddle1y && bally<paddle1y+paddle_h){
+              ballspeedx*=-1;
+              var deltaY=bally-(paddle1y+paddle_h/2);
+              ballspeedy=deltaY*0.35;
+            }
+          else{
+            score2+=1;
+            reset();
+            ballspeedx*=-1;
+          }
+        }
+        if (ballx>canvas.width-t){
+          if(bally>paddle2y && bally<paddle2y+paddle_h){
+              ballspeedx*=-1;
+              var deltaY=bally-(paddle2y+paddle_h/2);
+              ballspeedy=deltaY*0.35;}
+          else{
+            score1+=1;
+            reset();
+            ballspeedx*=-1;
+          }
+        }
+        bally = (bally+ballspeedy);
+        if (bally<0){
+          ballspeedy*=-1;
+        }
+        if (bally>canvas.height){
+          ballspeedy*=-1;
+        }
+      }
+      function reset(){
+
+        ballx=canvas.width/2;
+        bally=canvas.height/2;
+        if (score1==target || score2==target)
+        {
+          score1=0;
+          score2=0;
+          victory=true;
+        }
+      }
+    }
+    function drawnet(){
+      for ( var i=0;i<canvas.height;i+=40) {
+        canvascontext.fillStyle='white';
+        canvascontext.fillRect(canvas.width/2-1,i,2,20);
+      }
+    }
+    function drawe(){
+
+      canvascontext.fillStyle='black';
+      canvascontext.fillRect(0,0,canvas.width,canvas.height);
+        if(victory){
+
+          canvascontext.fillStyle='white';
+          if(score1>score2){
+            canvascontext.fillText("you won",400,100);
+          }
+          else{
+            canvascontext.fillText("you lost",400,100);
+          }
+          canvascontext.fillText("click to continue",380,400);
+          return;
+        }
+      drawnet();
+      canvascontext.fillStyle='white';
+      canvascontext.fillRect(0,paddle1y,10,paddle_h);
+      canvascontext.fillStyle='white';
+      canvascontext.fillRect(canvas.width-t,paddle2y,t,paddle_h);
+      canvascontext.fillStyle='white';
+      canvascontext.beginPath();
+      canvascontext.arc(ballx,bally,t,0,Math.PI*2,true);
+      canvascontext.fill();
+      canvascontext.fillText(score1,100,100);
+      canvascontext.fillText(score2,700,100);
+    }
+
+  </script>
+</html>
